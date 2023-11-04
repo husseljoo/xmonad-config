@@ -50,24 +50,26 @@ confirm_exit() {
         -theme $dir/confirm.rasi
 }
 
+
 # Variable passed to rofi
 options="$shutdown\n$reboot\n$lock\n$suspend\n$logout"
-confirm_key="(press Space-Enter)"
+confirm_key=" (press  Space-Enter)"
 
 chosen="$(echo -e "$options" | $rofi_command -p "Uptime: $uptime" -dmenu -selected-row 2)"
 case $chosen in
     $shutdown)
-        ans=$(confirm_exit " $shutdown SHUTDOWN $shutdown $confirm_key" &)
-		if [[ $ans == " " || $ans == "y"]]; then
+        ans=$(confirm_exit "SHUTDOWN $shutdown $confirm_key" &)
+		if [[ $ans == " " || $ans == "y" ]]; then
 			systemctl poweroff
         else
 			exit 0
         fi
         ;;
     $reboot)
-        ans=$(confirm_exit "$reboot REBOOT $reboot $confirm_key" &)
-		if [[ $ans == " " || $ans == "y"]]; then
-			systemctl reboot
+        ans=$(confirm_exit "REBOOT $reboot $confirm_key" &)
+		if [[ $ans == " " || $ans == "y" ]]; then
+			# systemctl reboot
+			alacritty
         else
 			exit 0
         fi
@@ -76,8 +78,8 @@ case $chosen in
 		betterlockscreen -l
         ;;
     $suspend)
-        ans=$(confirm_exit "$suspend SUSPEND $suspend $confirm_key" &)
-		if [[ $ans == " " || $ans == "y"]]; then
+        ans=$(confirm_exit "SUSPEND $suspend $confirm_key" &)
+		if [[ $ans == " " || $ans == "y" ]]; then
 			playerctl pause
 			amixer set Master mute
 			systemctl suspend
@@ -86,8 +88,8 @@ case $chosen in
         fi
         ;;
     $logout)
-        ans=$(confirm_exit "$logout LOGOUT $logout $confirm_key" &)
-		if [[ $ans == " " || $ans == "y"]]; then
+        ans=$(confirm_exit "LOGOUT $logout $confirm_key" &)
+		if [[ $ans == " " || $ans == "y" ]]; then
 			session=`loginctl session-status | head -n 1 | awk '{print $1}'`
 			loginctl terminate-session $session
         else
