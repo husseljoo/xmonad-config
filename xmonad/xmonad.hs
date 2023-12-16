@@ -17,8 +17,8 @@ import XMonad.Hooks.EwmhDesktops ( ewmh )
 import Control.Monad ( join, when )
 import XMonad.Layout.NoBorders
 import XMonad.Hooks.ManageDocks
-    ( avoidStruts, docks, manageDocks, Direction2D(D, L, R, U) )
-import XMonad.Hooks.ManageHelpers ( doFullFloat, isFullscreen )
+    (ToggleStruts (..), avoidStruts, docks, manageDocks, Direction2D(D, L, R, U) )
+import XMonad.Hooks.ManageHelpers
 import XMonad.Layout.Spacing ( spacingRaw, Border(Border) )
 import XMonad.Layout.Gaps
     ( Direction2D(D, L, R, U),
@@ -29,10 +29,34 @@ import XMonad.Layout.Gaps
 import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
 import Data.Maybe (maybeToList)
+import XMonad.Layout.MultiToggle (EOT (EOT), mkToggle, single, (??))
+import qualified XMonad.Layout.MultiToggle as MT (Toggle (..))
+import XMonad.Layout.MultiToggle.Instances (StdTransformers (MIRROR, NBFULL, NOBORDERS))
+import XMonad.Layout.Tabbed
+import XMonad.Layout.ToggleLayouts
+import qualified XMonad.Layout.ToggleLayouts as T (ToggleLayout (Toggle), toggleLayouts)
+import XMonad.Layout.WindowArranger (WindowArrangerMsg (..), windowArrange)
+import XMonad.Layout.Renamed
+import XMonad.Layout.WindowNavigation
+import XMonad.Actions.MouseResize
+import XMonad.Layout.LimitWindows (decreaseLimit, increaseLimit, limitWindows)
+import XMonad.Layout.SubLayouts
+import XMonad.Layout.LayoutModifier
+import XMonad.Layout.Spacing
+import XMonad.Layout.Simplest
+import XMonad.Layout.SimplestFloat
+import XMonad.Layout.ResizableTile
+import XMonad.Hooks.SetWMName
+import XMonad.Util.NamedScratchpad
+import XMonad.ManageHook
+
 -- The preferred terminal program, which is used in a binding below and by
 -- certain contrib modules.
 --
 myTerminal      = "alacritty"
+
+myBrowser :: String
+myBrowser = "firefox-developer-edition"
 
 -- Whether focus follows the mouse pointer.
 myFocusFollowsMouse :: Bool
@@ -46,26 +70,14 @@ myClickJustFocuses = False
 --
 myBorderWidth   = 2
 
--- modMask lets you specify which modkey you want to use. The default
--- is mod1Mask ("left alt").  You may also consider using mod3Mask
--- ("right alt"), which does not conflict with emacs keybindings. The
--- "windows key" is usually mod4Mask.
---
+-- window key as ModMask
 myModMask       = mod4Mask
 
--- The default number of workspaces (virtual screens) and their names.
--- By default we use numeric strings, but any string may be used as a
--- workspace name. The number of workspaces is determined by the length
--- of this list.
---
--- A tagging example:
---
--- > workspaces = ["web", "irc", "code" ] ++ map show [4..9]
---
-myWorkspaces    = ["\63083", "\63288", "\63306", "\61723", "\63107", "\63601", "\63391", "\61713", "\61884"]
+-- names and number of workspaces is determined by the length of the list
+-- myWorkspaces = ["dev", "web", "\63083"] ++ map show [4..9]
+myWorkspaces = map show [1..9] ++ ["NSP"]
 
--- Border colors for unfocused and focused windows, respectively.
---
+-- Border colors for unfocused and focused windows (alternatives #282c34,#46d9ff)
 myNormalBorderColor  = "#3b4252"
 myFocusedBorderColor = "#bc96da"
 
@@ -91,12 +103,13 @@ addEWMHFullscreen   = do
 clipboardy :: MonadIO m => m () -- Don't question it 
 clipboardy = spawn "rofi -modi \"\63053 :greenclip print\" -show \"\63053 \" -run-command '{cmd}' -theme ~/.config/rofi/launcher/style.rasi"
 
-centerlaunch = spawn "exec ~/bin/eww open-many blur_full weather profile quote search_full disturb-icon vpn-icon home_dir screenshot power_full reboot_full lock_full logout_full suspend_full"
+-- centerlaunch = spawn "exec ~/bin/eww open-many blur_full weather profile quote search_full disturb-icon vpn-icon home_dir screenshot power_full reboot_full lock_full logout_full suspend_full"
 sidebarlaunch = spawn "exec ~/bin/eww open-many weather_side time_side smol_calendar player_side sys_side sliders_side"
 ewwclose = spawn "exec ~/bin/eww close-all"
-maimcopy = spawn "maim -s | xclip -selection clipboard -t image/png && notify-send \"Screenshot\" \"Copied to Clipboard\" -i flameshot"
-maimsave = spawn "maim -s ~/Desktop/$(date +%Y-%m-%d_%H-%M-%S).png && notify-send \"Screenshot\" \"Saved to Desktop\" -i flameshot"
+maimcopy = spawn "maim -s | xclip -selection clipboard -t image/png && notify-send 'Screenshot' 'Copied to Clipboard' -i flameshot"
+maimsave = spawn "maim -s ~/Pictures/screen_shots/$(date +%Y-%m-%d_%H-%M-%S).png && notify-send 'Screenshot' 'Saved to screen_shots' -i flameshot"
 rofi_launcher = spawn "rofi -no-lazy-grab -show drun -modi run,drun,window -theme $HOME/.config/rofi/launcher/style -drun-icon-theme \"candy-icons\" "
+testbar = spawn "exec ~/.config/eww/launch_bar"
 
 
 myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
@@ -104,17 +117,28 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- launch a terminal
     [ ((modm .|. shiftMask, xK_Return), spawn $ XMonad.terminal conf)
 
+    , ((modm,               xK_space    ), sendMessage (MT.Toggle NBFULL) >> sendMessage ToggleStruts)
+    , ((modm,               xK_BackSpace ), sendMessage NextLayout)
+    , ((modm,               xK_b    ), spawn (myBrowser))
+
     -- lock screen
     , ((modm,               xK_F1    ), spawn "betterlockscreen -l")
 
+    --toggle terminal opacity
+    , ((modm,               xK_F2    ), spawn "toggle_alacritty_opacity")
+
+    -- scratchpads
+    , ((modm,               xK_o     ), namedScratchpadAction myScratchPads "terminal")
+
     -- launch rofi and dashboard
-    , ((modm,               xK_o     ), rofi_launcher)
-    , ((modm,               xK_p     ), centerlaunch)
+    , ((modm,               xK_p     ), rofi_launcher)
+    -- , ((modm,               xK_p     ), centerlaunch)
     , ((modm .|. shiftMask, xK_p     ), ewwclose)
 
     -- launch eww sidebar
     , ((modm,               xK_s     ), sidebarlaunch)
     , ((modm .|. shiftMask, xK_s     ), ewwclose)
+    , ((modm,               xK_a     ), testbar)
 
     -- Audio keys
     , ((0,                    xF86XK_AudioPlay), spawn "playerctl play-pause")
@@ -131,36 +155,36 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- Screenshot
     , ((0,                    xK_Print), maimcopy)
     , ((modm,                 xK_Print), maimsave)
+    , ((modm,                 xK_Page_Up), maimcopy)
+    , ((modm,                 xK_Page_Down), maimsave)
 
     -- My Stuff
-    , ((modm,               xK_b     ), spawn "exec ~/bin/bartoggle")
+    , ((modm,               xK_F3     ), spawn "exec ~/bin/bartoggle")
     , ((modm,               xK_z     ), spawn "exec ~/bin/inhibit_activate")
     , ((modm .|. shiftMask, xK_z     ), spawn "exec ~/bin/inhibit_deactivate")
     , ((modm .|. shiftMask, xK_a     ), clipboardy)
     -- Turn do not disturb on and off
-    , ((modm,               xK_d     ), spawn "exec ~/bin/do_not_disturb.sh")
+    -- , ((modm,               xK_d     ), spawn "exec ~/bin/do_not_disturb.sh")
+    , ((modm,               xK_d     ), spawn "find ~/wallpapers -type f | shuf -n 1 | xargs feh --bg-scale")
 
     -- close focused window
     , ((modm .|. shiftMask, xK_c     ), kill)
 
     -- GAPS!!!
-    , ((modm .|. controlMask, xK_g), sendMessage $ ToggleGaps)               -- toggle all gaps
-    , ((modm .|. shiftMask, xK_g), sendMessage $ setGaps [(L,30), (R,30), (U,40), (D,60)]) -- reset the GapSpec
+    -- , ((modm .|. controlMask, xK_g), sendMessage $ ToggleGaps)               -- toggle all gaps
+    -- , ((modm .|. shiftMask, xK_g), sendMessage $ setGaps [(L,30), (R,30), (U,40), (D,60)]) -- reset the GapSpec
     
-    , ((modm .|. controlMask, xK_t), sendMessage $ IncGap 10 L)              -- increment the left-hand gap
-    , ((modm .|. shiftMask, xK_t     ), sendMessage $ DecGap 10 L)           -- decrement the left-hand gap
+    -- , ((modm .|. controlMask, xK_t), sendMessage $ IncGap 10 L)              -- increment the left-hand gap
+    -- , ((modm .|. shiftMask, xK_t     ), sendMessage $ DecGap 10 L)           -- decrement the left-hand gap
     
-    , ((modm .|. controlMask, xK_y), sendMessage $ IncGap 10 U)              -- increment the top gap
-    , ((modm .|. shiftMask, xK_y     ), sendMessage $ DecGap 10 U)           -- decrement the top gap
+    -- , ((modm .|. controlMask, xK_y), sendMessage $ IncGap 10 U)              -- increment the top gap
+    -- , ((modm .|. shiftMask, xK_y     ), sendMessage $ DecGap 10 U)           -- decrement the top gap
     
-    , ((modm .|. controlMask, xK_u), sendMessage $ IncGap 10 D)              -- increment the bottom gap
-    , ((modm .|. shiftMask, xK_u     ), sendMessage $ DecGap 10 D)           -- decrement the bottom gap
+    -- , ((modm .|. controlMask, xK_u), sendMessage $ IncGap 10 D)              -- increment the bottom gap
+    -- , ((modm .|. shiftMask, xK_u     ), sendMessage $ DecGap 10 D)           -- decrement the bottom gap
 
-    , ((modm .|. controlMask, xK_i), sendMessage $ IncGap 10 R)              -- increment the right-hand gap
-    , ((modm .|. shiftMask, xK_i     ), sendMessage $ DecGap 10 R)           -- decrement the right-hand gap
-
-     -- Rotate through the available layout algorithms
-    , ((modm,               xK_space ), sendMessage NextLayout)
+    -- , ((modm .|. controlMask, xK_i), sendMessage $ IncGap 10 R)              -- increment the right-hand gap
+    -- , ((modm .|. shiftMask, xK_i     ), sendMessage $ DecGap 10 R)           -- decrement the right-hand gap
 
     --  Reset the layouts on the current workspace to default
     , ((modm .|. shiftMask, xK_space ), setLayout $ XMonad.layoutHook conf)
@@ -203,12 +227,6 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
     -- Deincrement the number of windows in the master area
     , ((modm              , xK_period), sendMessage (IncMasterN (-1)))
-
-    -- Toggle the status bar gap
-    -- Use this binding with avoidStruts from Hooks.ManageDocks.
-    -- See also the statusBar function from Hooks.DynamicLog.
-    --
-    -- , ((modm              , xK_b     ), sendMessage ToggleStruts)
 
     -- Quit xmonad
     , ((modm .|. shiftMask, xK_q     ), spawn "~/bin/powermenu.sh")
@@ -255,33 +273,41 @@ myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm, button3), (\w -> focus w >> mouseResizeWindow w
                                        >> windows W.shiftMaster))
 
-    -- you may also bind events to the mouse scroll wheel (button4 and button5)
+    -- mouse scroll wheel, increase/decrease window size
+    , ((modm, button4), (\w -> focus w >> sendMessage Shrink))
+    , ((modm, button5), (\w -> focus w >> sendMessage Expand))
+
     ]
 
 ------------------------------------------------------------------------
 -- Layouts:
 
--- You can specify and transform your layouts by modifying these values.
--- If you change layout bindings be sure to use 'mod-shift-space' after
--- restarting (with 'mod-q') to reset your layout state to the new
--- defaults, as xmonad preserves your old layout settings by default.
---
--- The available layouts.  Note that each layout is separated by |||,
--- which denotes layout choice.
---
-myLayout = avoidStruts(tiled ||| Mirror tiled ||| Full)
+--useful to set using keybind: Tall 1 (10/100) (2/3), tabbed shrinkText def
+
+-- Makes setting the spacingRaw simpler to write. The spacingRaw module adds a configurable amount of space around windows.
+mySpacing :: Integer -> l a -> XMonad.Layout.LayoutModifier.ModifiedLayout Spacing l a
+mySpacing i = spacingRaw False (Border i i i i) True (Border i i i i) True
+
+mySpacingCustom :: Integer -> Integer -> Integer -> Integer -> l a -> XMonad.Layout.LayoutModifier.ModifiedLayout Spacing l a
+mySpacingCustom t b l r layout = spacingRaw False (Border t b l r) True (Border t b l r) True layout
+
+floats = renamed [Replace "floats"] $ smartBorders $ limitWindows 20 simplestFloat
+
+tall = renamed [Replace "tall"] $ smartBorders $ windowNavigation $ subLayout [] (smartBorders Simplest) $ limitWindows 12 $ mySpacing 8 $
+       ResizableTall 1 (3 / 100) (1 / 2) []
+
+-- each layout is separated by |||
+myLayout = avoidStruts $ mouseResize $ windowArrange $ T.toggleLayouts floats $ mkToggle (NBFULL ?? NOBORDERS ?? EOT) myDefaultLayout
   where
-     -- default tiling algorithm partitions the screen into two panes
-     tiled   = Tall nmaster delta ratio
+    myDefaultLayout =
+        withBorder myBorderWidth tall
+            ||| noBorders tiled
 
-     -- The default number of windows in the master pane
-     nmaster = 1
+    tiled = Tall nmaster delta ratio -- default tiling algorithm partitions the screen into two panes
+    nmaster = 1     -- default number of windows in the master pane
+    ratio = 1 / 2   -- default proportion of screen occupied by master pane
+    delta = 3 / 100 -- % of screen to increment by when resizing panes
 
-     -- Default proportion of screen occupied by master pane
-     ratio   = 1/2
-
-     -- Percent of screen to increment by when resizing panes
-     delta   = 3/100
 
 ------------------------------------------------------------------------
 -- Window rules:
@@ -299,12 +325,29 @@ myLayout = avoidStruts(tiled ||| Mirror tiled ||| Full)
 -- 'className' and 'resource' are used below.
 --
 myManageHook = fullscreenManageHook <+> manageDocks <+> composeAll
-    [ className =? "MPlayer"        --> doFloat
+    [ className =? "Pavucontrol"    --> smallRect
+    , className =? "Blueberry.py"   --> smallRect
     , className =? "Gimp"           --> doFloat
     , resource  =? "desktop_window" --> doIgnore
     , resource  =? "kdesktop"       --> doIgnore
     , isFullscreen --> doFullFloat
                                  ]
+
+-- Floating window sizes
+largeRect = (customFloating $ W.RationalRect (1/20) (1/20) (9/10) (9/10))
+smallRect = (customFloating $ W.RationalRect (1/6) (1/6) (2/3) (2/3))
+
+------------------------------------------------------------------------
+-- Scratchpads:
+--
+-- Allows to have several floating scratchpads running different applications.
+
+myScratchPads :: [NamedScratchpad]
+myScratchPads = [ NS "terminal" spawnTerm findTerm largeRect
+                ]
+  where
+    spawnTerm  = myTerminal ++ " -t scratchpad"
+    findTerm   = title =? "scratchpad"
 
 ------------------------------------------------------------------------
 -- Event handling
@@ -335,11 +378,12 @@ myLogHook = return ()
 --
 -- By default, do nothing.
 myStartupHook = do
+  setWMName "LG3D"
   spawnOnce "exec ~/bin/bartoggle"
   spawnOnce "exec ~/bin/eww daemon"
   spawn "xsetroot -cursor_name left_ptr"
   spawn "exec ~/bin/lock.sh"
-  spawnOnce "feh --bg-scale ~/wallpapers/yosemite-lowpoly.jpg"
+  spawnOnce "find ~/wallpapers -type f | shuf -n 1 | xargs feh --bg-scale"
   spawnOnce "picom --experimental-backends"
   spawnOnce "greenclip daemon"
   spawnOnce "dunst"
@@ -373,8 +417,8 @@ defaults = def {
         mouseBindings      = myMouseBindings,
 
       -- hooks, layouts
-        manageHook = myManageHook, 
-        layoutHook = gaps [(L,30), (R,30), (U,40), (D,60)] $ spacingRaw True (Border 10 10 10 10) True (Border 10 10 10 10) True $ smartBorders $ myLayout,
+        manageHook = myManageHook <+> namedScratchpadManageHook myScratchPads,
+        layoutHook = myLayout,
         handleEventHook    = myEventHook,
         logHook            = myLogHook,
         startupHook        = myStartupHook >> addEWMHFullscreen
