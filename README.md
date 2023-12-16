@@ -17,10 +17,7 @@
 - [About ⁉️](#about)
 - [Gallery 📷](#gal)
 - [Workflow 🖨️](#workflow)
-- [Keybinds ✍️](#keybinds)
 - [Installation 🤵‍](#inst)
-  - [Arch Install 🌇](#arch)
-  - [Other Install 🚂](#other)
 - [Dependencies 📊](#deps)
 - [Troubleshooting 🔫](#trouble)
 
@@ -73,72 +70,7 @@ Workflow GIF: (This is a short one, for more goodies look at the links below)
 
 [Workflow Video by Guilherme Moreno](https://www.youtube.com/watch?v=im9QKZSMUFQ) aka [@morenoled](https://github.com/morenoled)
 
-<a id="keybinds"></a>
-## Keybinds ✍️
-
-These are the basic keybinds. Read through the `xmonad/xmonad.hs` file for more keybinds like increasing gaps and restoring gaps.
-
-|        Keybind         |                 Function                 |
-| ---------------------- | ---------------------------------------- |
-| `Win + Shift + Enter`  | Launch terminal (alacritty)              |
-| `Win + Shift + C`      | Close window                             |
-| `Win + O`              | Open rofi menu                           |
-| `Win + Shift + Q`      | Open rofi powermenu                      |
-| `Win + S`              | Open sidebar                             |
-| `Win + Shift + S`      | Close sidebar                            |
-| `Win + P`              | Open dashboard                           |
-| `Win + Shift + P`      | Close dashboard                          |
-| `Win + B`              | Toggle the main bars                     |
-| `Win + Z`              | Activate inhibitor (Stops autolocking)   |
-| `Win + Shift + Z`      | Dectivate inhibitor (Enables autolocking)|
-| `Win + Ctrl + G`       | Toggle gaps (toggle to get screen space) |
-| `Win + J`              | Navigate through windows                 |
-| `Win + K`              | Navigate through windows                 |
-| `Win + Space`          | Switch through layouts                   |
-| `Win + T`              | Make a floating window tiled             |
-
-Note: `Toggling` means to enable if inactive or to disable if active.
-
-
-Note: `Win` refers to the `Super` key.
-
-
-<a id="inst"></a>
 ## Installation 🤵‍
-Alright, let's get to the main stuff.
-
-
-If you feel like you don't want to read so much, here's a video, courtesy of [@SavvyNik](https://github.com/SavvyNik)!
-
-[Nik's Installation Video for Arch Linux](https://www.youtube.com/watch?v=a8YJBGk8H4Q)
-
-
-
-Note: Whatever method you follow, if you want the weather and quote features to work as well, you need to modify your crontab as follows: <br>
-(To edit your crontab, `crontab -e` as a normal user.)
-
-
-
-```
-0,30 * * * * /home/{Your-username}/.config/eww/scripts/getweather
-@reboot /home/{Your-username}/.config/eww/scripts/getquotes
-```
-
-
-And please follow these next few steps as well:
-- Add `export PATH="$PATH:$HOME/bin"` to your `~/.bashrc` file (or a shell of your choice).
-- Edit the script in `~/.config/eww/scripts/getweather`. Further steps are specified within that file.
-- Open `tint2conf` and edit the theme `panellauncher.tint2rc`. In there, head over to the `Launcher` tab and set the icon theme as candy-icons.
-- Get the Museo Sans 300 (ONLY THE 300 WEIGHT PLEASE, OTHERS LOOK WEIRD) font from Adobe itself or any other sources, put the `.ttf` or `.otf` file in your `~/.local/share/fonts`
-  - Run `fc-cache -f` after getting the font.
-- If the widgets don't work properly, go to [the main repository](https://github.com/elkowar/eww) and install `eww` as documented. Make sure the resulting binary is stored in `~/bin`.
-- Issue `xmonad --recompile` after you complete all the steps, and relogin to xmonad.
-- For the profile picture to load, it needs to have the full path in `eww.scss`. Open the file, search for the string containing `~/.config`(line number 329 to be exact) and edit it to point it to your image. Full path required. For example: `$HOME/path/to/image.png`.
-
-
-
-
-<a id="arch"></a>
 
 ### For Arch Linux and it's derivatives (make sure you have git installed): 🌇
 
@@ -158,20 +90,6 @@ $ sudo ln -s /usr/lib/libasan.so.8 /usr/lib/libasan.so.6 #This is here for tint2
 That'll do the basic stuff. For a complete copy, look at the list of dependencies below.
 
 AND DON'T FORGET TO READ WHAT'S WRITTEN AT THE END OF THE MAIN INSTALLATION SECTION [UP THERE](#inst). Further steps are specified there. (Yes. Absolutely needs to be shouty capitals.)
-
-
-
-<a id="other"></a>
-
-### For Gentoo Linux users (And basically any other distro): 🚂
-I'm sorry I couldn't do it. You'll have to manually install dependencies.
-
-**Piece of good advice**:  If you use `systemd`, go ahead and ignore this, and skip to [Going ahead: Others Edition](#ga-other).
-
-
-In case you use something else, I recommend opening this repository in a text editor after you clone it, and global-replace the stuff that suits your system. After that, go ahead with [Going ahead: Others Edition](#ga-other).
-
-<a id="ga-other"></a>
 
 #### Going Ahead: Others Edition
 You need to install the dependencies yourself, this script will add the fonts and the configs (and back up existing ones too):
