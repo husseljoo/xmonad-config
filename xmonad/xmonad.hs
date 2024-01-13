@@ -13,7 +13,7 @@ import Data.Monoid ()
 import System.Exit ()
 import XMonad.Util.SpawnOnce ( spawnOnce )
 import Graphics.X11.ExtraTypes.XF86 (xF86XK_AudioLowerVolume, xF86XK_AudioRaiseVolume, xF86XK_AudioMute, xF86XK_MonBrightnessDown, xF86XK_MonBrightnessUp, xF86XK_AudioPlay, xF86XK_AudioPrev, xF86XK_AudioNext)
-import XMonad.Hooks.EwmhDesktops ( ewmh )
+import XMonad.Hooks.EwmhDesktops ( ewmh, ewmhFullscreen )
 import Control.Monad ( join, when )
 import XMonad.Layout.NoBorders
 import XMonad.Hooks.ManageDocks
@@ -50,6 +50,12 @@ import XMonad.Hooks.SetWMName
 import XMonad.Util.NamedScratchpad
 import XMonad.ManageHook
 
+import XMonad.Hooks.DynamicLog
+import XMonad.Hooks.StatusBar
+import XMonad.Hooks.StatusBar.PP
+import XMonad.Util.Loggers
+import XMonad.Util.ClickableWorkspaces
+
 -- The preferred terminal program, which is used in a binding below and by
 -- certain contrib modules.
 --
@@ -75,7 +81,8 @@ myModMask       = mod4Mask
 
 -- names and number of workspaces is determined by the length of the list
 -- myWorkspaces = ["dev", "web", "\63083"] ++ map show [4..9]
-myWorkspaces = map show [1..9] ++ ["NSP"]
+-- myWorkspaces = map show [1..9] ++ ["NSP"]
+myWorkspaces = map show [1..9]
 
 -- Border colors for unfocused and focused windows (alternatives #282c34,#46d9ff)
 myNormalBorderColor  = "#3b4252"
@@ -159,7 +166,8 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm,                 xK_Page_Down), maimsave)
 
     -- My Stuff
-    , ((modm,               xK_F3     ), spawn "exec ~/bin/bartoggle")
+    -- , ((modm,               xK_F3     ), spawn "exec ~/bin/bartoggle")
+    , ((modm,               xK_F3     ), spawn "exec ~/bin/toggle_xmobar")
     , ((modm,               xK_z     ), spawn "exec ~/bin/inhibit_activate")
     , ((modm .|. shiftMask, xK_z     ), spawn "exec ~/bin/inhibit_deactivate")
     , ((modm .|. shiftMask, xK_a     ), clipboardy)
@@ -379,7 +387,7 @@ myLogHook = return ()
 -- By default, do nothing.
 myStartupHook = do
   setWMName "LG3D"
-  spawnOnce "exec ~/bin/bartoggle"
+  -- spawnOnce "exec ~/bin/bartoggle"
   spawnOnce "exec ~/bin/eww daemon"
   spawn "xsetroot -cursor_name left_ptr"
   spawn "exec ~/bin/lock.sh"
@@ -393,8 +401,44 @@ myStartupHook = do
 
 -- Run xmonad with the settings you specify. No need to modify this.
 --
-main = xmonad $ fullscreenSupport $ docks $ ewmh defaults
+-- main = xmonad $ fullscreenSupport $ docks $ ewmh defaults
+-- main = xmonad $ docks $ ewmhFullscreen $ ewmh $ xmobarProp $ defaults
+main = xmonad
+     . docks
+     . ewmhFullscreen
+     . ewmh
+     . withEasySB (statusBarProp "xmobar ~/.xmonad/xmobar.config" (clickablePP myXmobarPP)) toggleStrutsKey
+     $ defaults
+   where
+     toggleStrutsKey :: XConfig Layout -> (KeyMask, KeySym)
+     toggleStrutsKey XConfig{ modMask = m } = (m, xK_F8)
 
+myXmobarPP :: PP
+myXmobarPP = def
+    { ppSep             = magenta " • "
+    , ppTitleSanitize   = xmobarStrip
+    , ppCurrent         = wrap " " "" . xmobarBorder "Top" "#8be9fd" 2
+    , ppVisible         = wrap " " "" . wisteria
+    , ppHidden          = wrap " " "" . jordyBlue
+    , ppHiddenNoWindows = wrap " " "" . lowWhite
+    , ppUrgent          = red . wrap (yellow "!") (yellow "!")
+    , ppOrder           = \[ws, _, _, wins] -> [ws, wins]
+    , ppExtras          = [logTitle]
+    }
+  where
+    -- Windows should have *some* title, which should not not exceed a sane length
+    ppWindow :: String -> String
+    ppWindow = xmobarRaw . (\w -> if null w then "untitled" else w) . shorten 15
+
+    blue, lowWhite, magenta, red, white, yellow :: String -> String
+    magenta  = xmobarColor "#ff79c6" ""
+    blue     = xmobarColor "#bd93f9" ""
+    white    = xmobarColor "#f8f8f2" ""
+    yellow   = xmobarColor "#f1fa8c" ""
+    red      = xmobarColor "#ff5555" ""
+    lowWhite = xmobarColor "#bbbbbb" ""
+    jordyBlue= xmobarColor "#82AAFF" ""
+    wisteria = xmobarColor "#C792EA" ""
 -- A structure containing your configuration settings, overriding
 -- fields in the default config. Any you don't override, will
 -- use the defaults defined in xmonad/XMonad/Config.hs
