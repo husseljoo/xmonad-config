@@ -12,6 +12,7 @@ import XMonad.Layout.Fullscreen
 import Data.Monoid ()
 import System.Exit ()
 import XMonad.Util.SpawnOnce ( spawnOnce )
+import XMonad.Actions.SpawnOn
 import Graphics.X11.ExtraTypes.XF86 (xF86XK_AudioLowerVolume, xF86XK_AudioRaiseVolume, xF86XK_AudioMute, xF86XK_MonBrightnessDown, xF86XK_MonBrightnessUp, xF86XK_AudioPlay, xF86XK_AudioPrev, xF86XK_AudioNext)
 import XMonad.Hooks.EwmhDesktops ( ewmh, ewmhFullscreen )
 import Control.Monad ( join, when )
@@ -55,6 +56,7 @@ import XMonad.Hooks.StatusBar
 import XMonad.Hooks.StatusBar.PP
 import XMonad.Util.Loggers
 import XMonad.Util.ClickableWorkspaces
+import XMonad.Layout.PerWorkspace
 
 -- The preferred terminal program, which is used in a binding below and by
 -- certain contrib modules.
@@ -82,7 +84,8 @@ myModMask       = mod4Mask
 -- names and number of workspaces is determined by the length of the list
 -- myWorkspaces = ["dev", "web", "\63083"] ++ map show [4..9]
 -- myWorkspaces = map show [1..9] ++ ["NSP"]
-myWorkspaces = map show [1..9]
+myWorkspaces :: [String]
+myWorkspaces = map show [1..8] ++ ["notes"]
 
 -- Border colors for unfocused and focused windows (alternatives #282c34,#46d9ff)
 myNormalBorderColor  = "#3b4252"
@@ -198,7 +201,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_space ), setLayout $ XMonad.layoutHook conf)
 
     -- Resize viewed windows to the correct size
-    , ((modm,               xK_n     ), refresh)
+    , ((modm,               xK_n     ), windows $ W.greedyView "notes")
 
     -- Move focus to the next window
     , ((modm,               xK_Tab   ), windows W.focusDown)
@@ -305,11 +308,12 @@ tall = renamed [Replace "tall"] $ smartBorders $ windowNavigation $ subLayout []
        ResizableTall 1 (3 / 100) (1 / 2) []
 
 -- each layout is separated by |||
-myLayout = avoidStruts $ mouseResize $ windowArrange $ T.toggleLayouts floats $ mkToggle (NBFULL ?? NOBORDERS ?? EOT) myDefaultLayout
+myLayout = avoidStruts $ mouseResize $ windowArrange $ T.toggleLayouts floats $ mkToggle (NBFULL ?? NOBORDERS ?? EOT) $ onWorkspace "notes" zenLayout $ myDefaultLayout
   where
     myDefaultLayout =
         withBorder myBorderWidth tall
             ||| noBorders tiled
+    zenLayout = noBorders tiled
 
     tiled = Tall nmaster delta ratio -- default tiling algorithm partitions the screen into two panes
     nmaster = 1     -- default number of windows in the master pane
@@ -395,6 +399,7 @@ myStartupHook = do
   spawnOnce "picom --experimental-backends"
   spawnOnce "greenclip daemon"
   spawnOnce "dunst"
+  -- spawnOn "notes" "obsidian & alacritty -e nvim $HOME/obsidian/husseljVault/Welcome.md"
 
 ------------------------------------------------------------------------
 -- Now run xmonad with all the defaults we set up.
@@ -461,7 +466,7 @@ defaults = def {
         mouseBindings      = myMouseBindings,
 
       -- hooks, layouts
-        manageHook = myManageHook <+> namedScratchpadManageHook myScratchPads,
+        manageHook = myManageHook <+> manageSpawn <+> namedScratchpadManageHook myScratchPads,
         layoutHook = myLayout,
         handleEventHook    = myEventHook,
         logHook            = myLogHook,
