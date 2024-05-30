@@ -113,6 +113,7 @@ addEWMHFullscreen   = do
 clipboardy :: MonadIO m => m () -- Don't question it 
 clipboardy = spawn "rofi -modi \"\63053 :greenclip print\" -show \"\63053 \" -run-command '{cmd}' -theme ~/.config/rofi/launcher/style.rasi -m -1"
 
+
 -- centerlaunch = spawn "exec ~/bin/eww open-many blur_full weather profile quote search_full disturb-icon vpn-icon home_dir screenshot power_full reboot_full lock_full logout_full suspend_full"
 sidebarlaunch = spawn "exec ~/bin/eww open-many weather_side time_side smol_calendar player_side sys_side sliders_side"
 ewwclose = spawn "exec ~/bin/eww close-all"
@@ -135,7 +136,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm,               xK_F1    ), spawn "betterlockscreen -l")
 
     --toggle terminal opacity
-    , ((modm,               xK_F2    ), spawn "toggle_alacritty_opacity")
+    , ((modm,               xK_F2    ), spawn "~/scripts/toggle_alacritty_opacity")
 
     -- scratchpads
     , ((modm,               xK_o     ), namedScratchpadAction myScratchPads "terminal")
@@ -181,6 +182,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- Turn do not disturb on and off
     -- , ((modm,               xK_d     ), spawn "exec ~/bin/do_not_disturb.sh")
     , ((modm,               xK_d     ), spawn "find ~/wallpapers -type f | shuf -n 1 | xargs feh --bg-scale")
+
 
     -- close focused window
     , ((modm .|. shiftMask, xK_c     ), kill)
