@@ -115,12 +115,12 @@ clipboardy = spawn "rofi -modi \"\63053 :greenclip print\" -show \"\63053 \" -ru
 
 
 -- centerlaunch = spawn "exec ~/bin/eww open-many blur_full weather profile quote search_full disturb-icon vpn-icon home_dir screenshot power_full reboot_full lock_full logout_full suspend_full"
-sidebarlaunch = spawn "exec ~/bin/eww open-many weather_side time_side smol_calendar player_side sys_side sliders_side"
-ewwclose = spawn "exec ~/bin/eww close-all"
+-- sidebarlaunch = spawn "exec ~/bin/eww open-many weather_side time_side smol_calendar player_side sys_side sliders_side"
+-- ewwclose = spawn "exec ~/bin/eww close-all"
 maimcopy = spawn "maim -s | xclip -selection clipboard -t image/png && notify-send 'Screenshot' 'Copied to Clipboard' -i flameshot"
 maimsave = spawn "maim -s ~/Pictures/screen_shots/$(date +%Y-%m-%d_%H-%M-%S).png && notify-send 'Screenshot' 'Saved to screen_shots' -i flameshot"
 rofi_launcher = spawn "rofi -no-lazy-grab -show drun -modi run,drun,window -theme $HOME/.config/rofi/launcher/style -drun-icon-theme \"candy-icons\" -m -1"
-testbar = spawn "exec ~/.config/eww/launch_bar"
+-- testbar = spawn "exec ~/.config/eww/launch_bar"
 
 
 myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
@@ -144,12 +144,12 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- launch rofi and dashboard
     , ((modm,               xK_p     ), rofi_launcher)
     -- , ((modm,               xK_p     ), centerlaunch)
-    , ((modm .|. shiftMask, xK_p     ), ewwclose)
+    -- , ((modm .|. shiftMask, xK_p     ), ewwclose)
 
     -- launch eww sidebar
-    , ((modm,               xK_s     ), sidebarlaunch)
-    , ((modm .|. shiftMask, xK_s     ), ewwclose)
-    , ((modm,               xK_a     ), testbar)
+    -- , ((modm,               xK_s     ), sidebarlaunch)
+    -- , ((modm .|. shiftMask, xK_s     ), ewwclose)
+    -- , ((modm,               xK_a     ), testbar)
 
     -- Audio keys
     , ((0,                    xF86XK_AudioPlay), spawn "playerctl play-pause")
@@ -175,9 +175,9 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
     -- My Stuff
     -- , ((modm,               xK_F3     ), spawn "exec ~/bin/bartoggle")
-    , ((modm,               xK_F3     ), spawn "exec ~/bin/toggle_xmobar")
-    , ((modm,               xK_z     ), spawn "exec ~/bin/inhibit_activate")
-    , ((modm .|. shiftMask, xK_z     ), spawn "exec ~/bin/inhibit_deactivate")
+    , ((modm,               xK_F3     ), spawn "exec ~/scripts/toggle_xmobar")
+    , ((modm,               xK_z     ), spawn "exec ~/scripts/inhibit_activate")
+    , ((modm .|. shiftMask, xK_z     ), spawn "exec ~/scripts/inhibit_deactivate")
     , ((modm .|. shiftMask, xK_a     ), clipboardy)
     -- Turn do not disturb on and off
     -- , ((modm,               xK_d     ), spawn "exec ~/bin/do_not_disturb.sh")
@@ -246,7 +246,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm              , xK_period), sendMessage (IncMasterN (-1)))
 
     -- Quit xmonad
-    , ((modm .|. shiftMask, xK_q     ), spawn "~/bin/powermenu.sh")
+    , ((modm .|. shiftMask, xK_q     ), spawn "~/scripts/powermenu.sh")
 
     -- Restart xmonad
     , ((modm              , xK_q     ), spawn "xmonad --recompile; xmonad --restart")
