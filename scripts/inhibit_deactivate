@@ -1,0 +1,8 @@
+#!/bin/bash
+if [ -z "$(pgrep xautolock)" ]
+then
+	~/scripts/lock.sh &
+	notify-send "Inhibitor" "Deactivated"
+else
+	notify-send "Inhibitor Was Not Active"
+fi
