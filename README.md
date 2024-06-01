@@ -25,7 +25,7 @@
 
 ## Programs I use (can be swapped):
 
-- alacritty
+- [alacritty](https://github.com/alacritty/alacritty)
 - firefox-developer-edition
-- qutebrowser
+- [qutebrowser](https://github.com/qutebrowser/qutebrowser/)
 - obsidian
