@@ -335,7 +335,7 @@ myLayout = avoidStruts $ mouseResize $ windowArrange $ T.toggleLayouts floats $ 
 myManageHook = fullscreenManageHook <+> manageDocks <+> composeAll
     [ className =? "Pavucontrol"    --> smallRect
     , className =? "Blueberry.py"   --> smallRect
-    , className =? "qutebrowser"   --> smallRect
+    -- , className =? "qutebrowser"   --> largeRect
     , className =? "Gimp"           --> doFloat
     , resource  =? "desktop_window" --> doIgnore
     , resource  =? "kdesktop"       --> doIgnore
@@ -345,6 +345,7 @@ myManageHook = fullscreenManageHook <+> manageDocks <+> composeAll
 -- Floating window sizes
 largeRect = (customFloating $ W.RationalRect (1/20) (1/20) (9/10) (9/10))
 smallRect = (customFloating $ W.RationalRect (1/6) (1/6) (2/3) (2/3))
+quteRect = (customFloating $ W.RationalRect (3/20) (3/20) (7/10) (7/10))
 
 ------------------------------------------------------------------------
 -- Scratchpads:
@@ -353,7 +354,7 @@ smallRect = (customFloating $ W.RationalRect (1/6) (1/6) (2/3) (2/3))
 
 myScratchPads :: [NamedScratchpad]
 myScratchPads = [ NS "terminal" spawnTerm findTerm largeRect,
-                  NS "qutebrowser" "qutebrowser" (title ~? "qutebrowser") largeRect
+                  NS "qutebrowser" "qutebrowser" (title ~? "qutebrowser") quteRect
                 ]
   where
     spawnTerm  = myTerminal ++ " -t scratchpad"
@@ -391,13 +392,12 @@ myStartupHook = do
   setWMName "LG3D"
   -- spawnOnce "exec ~/bin/eww daemon"
   spawn "xsetroot -cursor_name left_ptr"
-  spawn "exec ~/bin/lock.sh"
+  spawn "exec ~/scripts/lock.sh"
   spawnOnce "find ~/wallpapers -type f | shuf -n 1 | xargs feh --bg-scale"
   spawnOnce "picom --experimental-backends"
   spawnOnce "greenclip daemon"
   spawnOnce "dunst"
-  spawnOn "notes" "obsidian & alacritty --working-directory $HOME/obsidian/learning"
-  -- spawnOn "notes" "obsidian & alacritty -e nvim $HOME/obsidian/learning/Welcome.md"
+  spawnOn "notes" "obsidian"
 
 ------------------------------------------------------------------------
 -- Now run xmonad with all the defaults we set up.
