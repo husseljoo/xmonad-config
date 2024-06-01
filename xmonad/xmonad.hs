@@ -396,7 +396,8 @@ myStartupHook = do
   spawnOnce "picom --experimental-backends"
   spawnOnce "greenclip daemon"
   spawnOnce "dunst"
-  -- spawnOn "notes" "obsidian & alacritty -e nvim $HOME/obsidian/husseljVault/Welcome.md"
+  spawnOn "notes" "obsidian & alacritty --working-directory $HOME/obsidian/learning"
+  -- spawnOn "notes" "obsidian & alacritty -e nvim $HOME/obsidian/learning/Welcome.md"
 
 ------------------------------------------------------------------------
 -- Now run xmonad with all the defaults we set up.
