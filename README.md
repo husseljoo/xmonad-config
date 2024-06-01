@@ -5,14 +5,14 @@
 
 ## Dependencies
 
-- rofi (+config)
-- maim
-- dunst
-- feh
-- betterlockscreen
+- [rofi](https://github.com/davatorium/rofi) +config
+- [dunst](https://github.com/dunst-project/dunst) +config
+- [maim](https://github.com/naelstrof/maim)
+- [feh](https://github.com/derf/feh)
+- [betterlockscreen](https://github.com/betterlockscreen/betterlockscreen)
+- [greenclip](https://github.com/erebe/greenclip)
 - pactl
 - brightnessctl
-- greenclip
 - xclip
 
 ## some needed scripts (under `~/scripts`)
