@@ -1,7 +1,7 @@
 ### Samples
 
-![Note-taking](./images/note-taking.png)
 ![Coding](./images/coding.png)
+![Note-taking](./images/note-taking.png)
 
 ## Things I use
 

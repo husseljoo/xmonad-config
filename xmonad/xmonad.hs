@@ -114,13 +114,9 @@ clipboardy :: MonadIO m => m () -- Don't question it
 clipboardy = spawn "rofi -modi \"\63053 :greenclip print\" -show \"\63053 \" -run-command '{cmd}' -theme ~/.config/rofi/launcher/style.rasi -m -1"
 
 
--- centerlaunch = spawn "exec ~/bin/eww open-many blur_full weather profile quote search_full disturb-icon vpn-icon home_dir screenshot power_full reboot_full lock_full logout_full suspend_full"
--- sidebarlaunch = spawn "exec ~/bin/eww open-many weather_side time_side smol_calendar player_side sys_side sliders_side"
--- ewwclose = spawn "exec ~/bin/eww close-all"
 maimcopy = spawn "maim -s | xclip -selection clipboard -t image/png && notify-send 'Screenshot' 'Copied to Clipboard' -i flameshot"
 maimsave = spawn "maim -s ~/Pictures/screen_shots/$(date +%Y-%m-%d_%H-%M-%S).png && notify-send 'Screenshot' 'Saved to screen_shots' -i flameshot"
 rofi_launcher = spawn "rofi -no-lazy-grab -show drun -modi run,drun,window -theme $HOME/.config/rofi/launcher/style -drun-icon-theme \"candy-icons\" -m -1"
--- testbar = spawn "exec ~/.config/eww/launch_bar"
 
 
 myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
@@ -140,16 +136,10 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
     -- scratchpads
     , ((modm,               xK_o     ), namedScratchpadAction myScratchPads "terminal")
+    , ((modm,               xK_s     ), namedScratchpadAction myScratchPads "qutebrowser")
 
     -- launch rofi and dashboard
     , ((modm,               xK_p     ), rofi_launcher)
-    -- , ((modm,               xK_p     ), centerlaunch)
-    -- , ((modm .|. shiftMask, xK_p     ), ewwclose)
-
-    -- launch eww sidebar
-    -- , ((modm,               xK_s     ), sidebarlaunch)
-    -- , ((modm .|. shiftMask, xK_s     ), ewwclose)
-    -- , ((modm,               xK_a     ), testbar)
 
     -- Audio keys
     , ((0,                    xF86XK_AudioPlay), spawn "playerctl play-pause")
@@ -181,7 +171,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_a     ), clipboardy)
     -- Turn do not disturb on and off
     -- , ((modm,               xK_d     ), spawn "exec ~/bin/do_not_disturb.sh")
-    , ((modm,               xK_d     ), spawn "find ~/wallpapers -type f | shuf -n 1 | xargs feh --bg-scale")
+    , ((modm,               xK_d     ), spawn "find ~/wallpapers/husseljo-wallpapers-2k -type f | shuf -n 1 | xargs feh --bg-scale")
 
 
     -- close focused window
@@ -345,6 +335,7 @@ myLayout = avoidStruts $ mouseResize $ windowArrange $ T.toggleLayouts floats $ 
 myManageHook = fullscreenManageHook <+> manageDocks <+> composeAll
     [ className =? "Pavucontrol"    --> smallRect
     , className =? "Blueberry.py"   --> smallRect
+    , className =? "qutebrowser"   --> smallRect
     , className =? "Gimp"           --> doFloat
     , resource  =? "desktop_window" --> doIgnore
     , resource  =? "kdesktop"       --> doIgnore
@@ -361,7 +352,8 @@ smallRect = (customFloating $ W.RationalRect (1/6) (1/6) (2/3) (2/3))
 -- Allows to have several floating scratchpads running different applications.
 
 myScratchPads :: [NamedScratchpad]
-myScratchPads = [ NS "terminal" spawnTerm findTerm largeRect
+myScratchPads = [ NS "terminal" spawnTerm findTerm largeRect,
+                  NS "qutebrowser" "qutebrowser" (title ~? "qutebrowser") largeRect
                 ]
   where
     spawnTerm  = myTerminal ++ " -t scratchpad"
@@ -397,8 +389,7 @@ myLogHook = return ()
 -- By default, do nothing.
 myStartupHook = do
   setWMName "LG3D"
-  -- spawnOnce "exec ~/bin/bartoggle"
-  spawnOnce "exec ~/bin/eww daemon"
+  -- spawnOnce "exec ~/bin/eww daemon"
   spawn "xsetroot -cursor_name left_ptr"
   spawn "exec ~/bin/lock.sh"
   spawnOnce "find ~/wallpapers -type f | shuf -n 1 | xargs feh --bg-scale"
