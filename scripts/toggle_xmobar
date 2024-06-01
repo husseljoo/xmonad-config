@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if pgrep -x "xmobar" > /dev/null; then
+    echo "xmobar is running. Killing it"
+    pkill -x "xmobar"
+else
+    echo "restarting xmonad."
+    xmonad --restart
+fi
