@@ -3,7 +3,7 @@
 ![Coding](./images/coding.png)
 ![Note-taking](./images/note-taking.png)
 
-## Dependencies
+## Programs I use
 
 - [rofi](https://github.com/davatorium/rofi) +config
 - [dunst](https://github.com/dunst-project/dunst) +config
@@ -12,10 +12,14 @@
 - [betterlockscreen](https://github.com/betterlockscreen/betterlockscreen)
 - [greenclip](https://github.com/erebe/greenclip)
 - pactl
-- brightnessctl
+- [brightnessctl](https://github.com/Hummer12007/brightnessctl)
 - xclip
+- [alacritty](https://github.com/alacritty/alacritty)
+- [firefox-developer-edition](https://www.mozilla.org/en-US/firefox/developer/)
+- [qutebrowser](https://github.com/qutebrowser/qutebrowser/)
+- [obsidian](https://obsidian.md/)
 
-## some needed scripts (under `~/scripts`)
+## some scripts I use (in `./scripts`)
 
 - inhibit_activate
 - inhibit_deactivate
@@ -23,9 +27,4 @@
 - toggle_alacritty_opacity
 - toggle_xmobar
 
-## Programs I use (can be swapped):
 
-- [alacritty](https://github.com/alacritty/alacritty)
-- firefox-developer-edition
-- [qutebrowser](https://github.com/qutebrowser/qutebrowser/)
-- obsidian
