@@ -136,7 +136,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
     -- scratchpads
     , ((modm,               xK_o     ), namedScratchpadAction myScratchPads "terminal")
-    , ((modm,               xK_s     ), namedScratchpadAction myScratchPads "qutebrowser")
+    , ((modm,               xK_s     ), namedScratchpadAction myScratchPads "gtt")
 
     -- launch rofi and dashboard
     , ((modm,               xK_p     ), rofi_launcher)
@@ -355,11 +355,16 @@ quteRect = (customFloating $ W.RationalRect (3/20) (3/20) (7/10) (7/10))
 
 myScratchPads :: [NamedScratchpad]
 myScratchPads = [ NS "terminal" spawnTerm findTerm largeRect,
-                  NS "qutebrowser" "qutebrowser" (title ~? "qutebrowser") quteRect
+                  NS "gtt" "alacritty --class gtt -t gtt -e gtt" (title ~? "gtt") largeRect
+
                 ]
   where
     spawnTerm  = myTerminal ++ " -t scratchpad"
     findTerm   = title =? "scratchpad"
+
+myExclusives = addExclusives
+    [ ["terminal", "gtt"]
+    ]
 
 ------------------------------------------------------------------------
 -- Event handling
@@ -469,7 +474,7 @@ defaults = def {
         layoutHook = myLayout,
         handleEventHook    = myEventHook,
         logHook            = myLogHook,
-        startupHook        = myStartupHook >> addEWMHFullscreen
+        startupHook        = myStartupHook >> myExclusives >> addEWMHFullscreen
     }
 
 -- | Finally, a copy of the default bindings in simple textual tabular format.
