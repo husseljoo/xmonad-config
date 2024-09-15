@@ -173,6 +173,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- , ((modm,               xK_d     ), spawn "exec ~/bin/do_not_disturb.sh")
     , ((modm,               xK_d     ), spawn "find ~/wallpapers/husseljo-wallpapers-2k -type f | shuf -n 1 | xargs feh --bg-scale")
 
+    , ((modm .|. mod1Mask, xK_space     ), spawn "exec ~/scripts/cycle-keyboard-layouts us de") --mod1Mask=alt
 
     -- close focused window
     , ((modm .|. shiftMask, xK_c     ), kill)
