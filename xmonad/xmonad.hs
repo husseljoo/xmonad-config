@@ -355,7 +355,7 @@ quteRect = (customFloating $ W.RationalRect (3/20) (3/20) (7/10) (7/10))
 
 myScratchPads :: [NamedScratchpad]
 myScratchPads = [ NS "terminal" spawnTerm findTerm largeRect,
-                  NS "gtt" "alacritty --class gtt -t gtt -e gtt" (title ~? "gtt") largeRect
+                  NS "gtt" "alacritty --class gtt -t gtt -e gtt -src 'German' -dst 'English'" (title ~? "gtt") largeRect
 
                 ]
   where
