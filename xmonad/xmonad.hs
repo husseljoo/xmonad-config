@@ -146,12 +146,12 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((0,                    xF86XK_AudioPrev), spawn "playerctl previous")
     , ((0,                    xF86XK_AudioNext), spawn "playerctl next")
 
-    , ((0,                    xF86XK_AudioRaiseVolume), spawn "pactl set-sink-volume 0 +5%")
-    , ((0,                    xF86XK_AudioLowerVolume), spawn "pactl set-sink-volume 0 -5%")
-    , ((0,                    xF86XK_AudioMute), spawn "pactl set-sink-mute 0 toggle")
-    , ((modm,                    xK_KP_Add), spawn "pactl set-sink-volume 0 +5%")
-    , ((modm,                    xK_KP_Subtract), spawn "pactl set-sink-volume 0 -5%")
-    , ((modm,                    xK_KP_Multiply), spawn "pactl set-sink-mute 0 toggle")
+    , ((0,                    xF86XK_AudioLowerVolume), spawn "wpctl set-volume @DEFAULT_SINK@ 5%- -l 1")
+    , ((0,                    xF86XK_AudioRaiseVolume), spawn "wpctl set-volume @DEFAULT_SINK@ 5%+ -l 1")
+    , ((0,                    xF86XK_AudioMute), spawn "wpctl set-mute @DEFAULT_SINK@ toggle")
+    , ((modm,                    xK_KP_Add), spawn "wpctl set-volume @DEFAULT_SINK@ 5%+ -l 1")
+    , ((modm,                    xK_KP_Subtract), spawn "wpctl set-volume @DEFAULT_SINK@ 5%- -l 1")
+    , ((modm,                    xK_KP_Multiply), spawn "wpctl set-mute @DEFAULT_SINK@ toggle")
 
     -- Brightness keys
     , ((0,                    xF86XK_MonBrightnessUp), spawn "brightnessctl s +10%")
@@ -347,6 +347,7 @@ myManageHook = fullscreenManageHook <+> manageDocks <+> composeAll
 largeRect = (customFloating $ W.RationalRect (1/20) (1/20) (9/10) (9/10))
 smallRect = (customFloating $ W.RationalRect (1/6) (1/6) (2/3) (2/3))
 quteRect = (customFloating $ W.RationalRect (3/20) (3/20) (7/10) (7/10))
+gttRect = (customFloating $ W.RationalRect (3/20) (3/20) (7/10) (7/10))
 
 ------------------------------------------------------------------------
 -- Scratchpads:
@@ -356,7 +357,6 @@ quteRect = (customFloating $ W.RationalRect (3/20) (3/20) (7/10) (7/10))
 myScratchPads :: [NamedScratchpad]
 myScratchPads = [ NS "terminal" spawnTerm findTerm largeRect,
                   NS "gtt" "alacritty --class gtt -t gtt -e gtt -src 'German' -dst 'English'" (title ~? "gtt") largeRect
-
                 ]
   where
     spawnTerm  = myTerminal ++ " -t scratchpad"
