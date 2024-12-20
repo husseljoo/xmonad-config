@@ -404,6 +404,7 @@ myStartupHook = do
   spawnOnce "greenclip daemon"
   spawnOnce "dunst"
   spawnOn "notes" "obsidian"
+  spawnOnce "bash ~/scripts/monitoring_battery.sh"
 
 ------------------------------------------------------------------------
 -- Now run xmonad with all the defaults we set up.
