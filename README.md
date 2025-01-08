@@ -10,7 +10,7 @@
 - [maim](https://github.com/naelstrof/maim)
 - [feh](https://github.com/derf/feh)
 - [betterlockscreen](https://github.com/betterlockscreen/betterlockscreen)
-- [greenclip](https://github.com/erebe/greenclip)
+- [greenclip](https://github.com/erebe/greenclip), use rofi-greenclip instead as it is statically linked, unlike greenclip which needs to be rebuilt whenever a Haskell package gets updated
 - pactl
 - [brightnessctl](https://github.com/Hummer12007/brightnessctl)
 - xclip
