@@ -11,13 +11,21 @@
 - [feh](https://github.com/derf/feh)
 - [betterlockscreen](https://github.com/betterlockscreen/betterlockscreen)
 - [greenclip](https://github.com/erebe/greenclip), use rofi-greenclip instead as it is statically linked, unlike greenclip which needs to be rebuilt whenever a Haskell package gets updated
-- pactl
+- [ranger](https://github.com/ranger/ranger)
 - [brightnessctl](https://github.com/Hummer12007/brightnessctl)
 - xclip
+- [auto-cpufreq](https://github.com/AdnanHodzic/auto-cpufreq?tab=readme-ov-file#installing-auto-cpufreq)
 - [alacritty](https://github.com/alacritty/alacritty)
 - [firefox-developer-edition](https://www.mozilla.org/en-US/firefox/developer/)
 - [qutebrowser](https://github.com/qutebrowser/qutebrowser/)
 - [obsidian](https://obsidian.md/)
+- [ripgrep](https://github.com/BurntSushi/ripgrep)
+- [fzf](https://github.com/junegunn/fzf)
+- [blueberry](https://github.com/linuxmint/blueberry)
+- [lazygit](https://github.com/jesseduffield/lazygit)
+- [pwvucontrol](https://github.com/saivert/pwvucontrol)
+- [tmux](https://github.com/tmux/tmux/wiki)
+- [nvim](https://neovim.io/)
 
 ## some scripts I use (in `./scripts`)
 
